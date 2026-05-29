@@ -1,0 +1,72 @@
+{
+  "id": "recall-engine",
+  "name": "Recall Engine",
+  "version": "0.1.0",
+  "description": "Ask your entire past from chat, and get abandoned threads surfaced every morning — built on Reflex's cross-conversation search.",
+  "author": "reflex-agent",
+  "icon": "lucide:Brain",
+  "category": "productivity",
+  "ui": "ui.tsx",
+  "permissions": {
+    "sessions": { "search": true },
+    "kb": { "read": true, "write": true, "kinds": ["loose-end"] },
+    "llm": { "tasks": ["quick"] },
+    "workers": { "enabled": true }
+  },
+  "card": {
+    "kind": "action-list",
+    "title": "Loose Ends",
+    "description": "Threads you left open",
+    "action": "refreshCard",
+    "refresh": "daily",
+    "data": { "groups": [] }
+  },
+  "extensions": {
+    "slashCommands": [
+      {
+        "id": "recall",
+        "trigger": "recall",
+        "label": "Ask your past",
+        "description": "Search every past conversation and answer with citations",
+        "icon": "search",
+        "kind": "agent-mode",
+        "usage": "<question>",
+        "promptBlock": "The user is asking you to recall something from their own history. Search across journal entries and chat transcripts (use session recall / search across all Spaces), then answer concisely and cite where each fact came from (Space + date). If nothing matches, say so. Question: {payload}"
+      }
+    ],
+    "workflows": [
+      {
+        "id": "recall-loose-ends",
+        "label": "Surface abandoned threads",
+        "description": "Each morning at 06:00, find open questions and 'I'll get back to this' moments you never closed.",
+        "trigger": "at:06:00",
+        "steps": [
+          {
+            "id": "scan",
+            "kind": "ask-agent",
+            "label": "Find loose ends",
+            "params": {
+              "prompt": "Search recent journal entries and chat transcripts (your session recall, across all Spaces) from the last 2 weeks for open questions, promises, and 'I'll get back to this' moments the user never closed. Return a short markdown checklist (one line each, with the Space + date). Output nothing if there are none."
+            }
+          },
+          {
+            "id": "save",
+            "kind": "kb-write",
+            "label": "Save to KB",
+            "params": {
+              "kind": "loose-end",
+              "title": "Loose ends — {{date}}",
+              "body": "{{prev}}"
+            }
+          },
+          {
+            "id": "ping",
+            "kind": "notify",
+            "label": "Notify me",
+            "params": { "title": "Loose ends", "body": "{{prev}}" }
+          }
+        ]
+      }
+    ]
+  }
+}
