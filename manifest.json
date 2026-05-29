@@ -1,7 +1,7 @@
 {
   "id": "recall-engine",
   "name": "Recall Engine",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Ask your entire past from chat, and get abandoned threads surfaced every morning — built on Reflex's cross-conversation search.",
   "author": "reflex-agent",
   "icon": "lucide:Brain",
@@ -46,7 +46,7 @@
             "kind": "ask-agent",
             "label": "Find loose ends",
             "params": {
-              "prompt": "Search recent journal entries and chat transcripts (your session recall, across all Spaces) from the last 2 weeks for open questions, promises, and 'I'll get back to this' moments the user never closed. Return a short markdown checklist (one line each, with the Space + date). Output nothing if there are none."
+              "prompt": "Search recent journal entries and chat transcripts (your session recall, across all Spaces) from the last 2 weeks for open questions, promises, and 'I'll get back to this' moments the user never closed. Do NOT dispatch a sub-agent or emit any directive — do the search yourself and answer directly. Output ONLY a markdown checklist, one '- [ ] …' item per line (each noting the Space and date), or an empty string if there are none."
             }
           },
           {
@@ -55,7 +55,7 @@
             "label": "Save to KB",
             "params": {
               "kind": "loose-end",
-              "title": "Loose ends — {{date}}",
+              "title": "Loose ends",
               "body": "{{prev}}"
             }
           },
